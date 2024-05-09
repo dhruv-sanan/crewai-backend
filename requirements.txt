@@ -1,5 +1,5 @@
 beautifulsoup4
-crewai
+crewai==0.22.5
 Flask
 Flask-Cors
 langchain-groq
