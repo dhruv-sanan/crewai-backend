@@ -16,7 +16,7 @@ from crew import CompanyResearchCrew, EmailPersonalizationCrew, HRCrew
 from job_manager import append_event, jobs, jobs_lock, Event
 # from utils.logging import logger
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "*"}})
+CORS(app)
 
 
 def extract_job_description(url):
