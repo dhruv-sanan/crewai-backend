@@ -1,9 +1,0 @@
-beautifulsoup4
-crewai== 0.1.32
-Flask
-Flask-Cors
-langchain-groq
-PyPDF2
-requests
-utils
-load-dotenv
