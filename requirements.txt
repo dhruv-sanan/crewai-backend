@@ -7,4 +7,3 @@ PyPDF2
 requests
 utils
 load-dotenv
-io
