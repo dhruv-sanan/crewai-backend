@@ -2,7 +2,17 @@ from .agents import EmailPersonalizationAgents, HRAgents
 from .job_manager import append_event
 from .tasks import PersonalizeEmailTask, HRTask
 from crewai import Crew
+import requests
+from bs4 import BeautifulSoup
 
+def extract_job_description(url):
+    response = requests.get(url)
+    html_content = response.text
+    soup = BeautifulSoup(html_content, "html.parser")
+    job_description_section = soup.find("section", {"class": "description"})
+    job_description = job_description_section.get_text()
+    job_description = job_description.strip()
+    return job_description
 
 class EmailPersonalizationCrew:
     def __init__(self, job_id: str):
