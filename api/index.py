@@ -64,8 +64,6 @@ def input_pdf_text(url):
     except Exception as e:
         print(f"Error processing PDF: {e}")
         return "Error: An error occurred while processing the PDF"
-    finally:
-        os.remove("fetched_pdf.pdf")  # Remove temporary file
 
 
 @app.route('/api/extract-text', methods=['POST'])
