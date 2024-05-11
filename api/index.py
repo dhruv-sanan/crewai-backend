@@ -10,7 +10,6 @@ from flask import Flask, jsonify, request, abort
 from flask_cors import CORS
 import os
 import requests
-import PyPDF2 as pdf
 # Local application/library specific imports
 from .crew import EmailPersonalizationCrew, HRCrew
 from .job_manager import append_event, jobs, jobs_lock, Event
@@ -41,21 +40,27 @@ def extract_jd():
     jd = parts[1].rsplit("Show more", 1)[0]
     return jsonify({"jt": jt, 'jd': jd})
 
+from io import BytesIO
+from PyPDF2 import PdfReader
 
 def input_pdf_text(url):
     try:
-        response = requests.get(url, allow_redirects=True)  # Fetch PDF content
+        response = requests.get(url, allow_redirects=True)
         response.raise_for_status()  # Raise error for non-2xx status codes
-        with open("fetched_pdf.pdf", "wb") as f:  # Write fetched content to temporary file
-            f.write(response.content)
-        with open("fetched_pdf.pdf", "rb") as f:
-            reader = pdf.PdfReader(f)
-            text = ""
-            for page in range(len(reader.pages)):
-                page = reader.pages[page]
-                # Handle newlines and extra spaces
-                text += " " + page.extract_text().replace('\n', ' ').strip()
-            return text.strip()
+
+        if response.content:
+            # Use BytesIO to handle the PDF content in memory
+            with BytesIO(response.content) as pdf_file:
+                reader = PdfReader(pdf_file)
+                text = ""
+                for page in range(len(reader.pages)):
+                    page = reader.pages[page]
+                    # Handle newlines and extra spaces
+                    text += " " + page.extract_text().replace('\n', ' ').strip()
+                return text.strip()
+        else:
+            return "Error: Empty response from URL"
+
     except requests.exceptions.RequestException as e:
         print(f"Error fetching PDF: {e}")
         return "Error: Failed to retrieve PDF"
