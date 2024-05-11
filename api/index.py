@@ -46,8 +46,6 @@ def input_pdf_text(url):
     try:
         response = requests.get(url, allow_redirects=True)  # Fetch PDF content
         response.raise_for_status()  # Raise error for non-2xx status codes
-        if response:
-            return response.content
         with open("fetched_pdf.pdf", "wb") as f:  # Write fetched content to temporary file
             f.write(response.content)
         with open("fetched_pdf.pdf", "rb") as f:
@@ -64,7 +62,7 @@ def input_pdf_text(url):
     except Exception as e:
         print(f"Error processing PDF: {e}")
         return "Error: An error occurred while processing the PDF"
-
+    
 
 @app.route('/api/extract-text', methods=['POST'])
 def extract_text():
