@@ -1,6 +1,6 @@
-from agents import EmailPersonalizationAgents, HRAgents
-from job_manager import append_event
-from tasks import PersonalizeEmailTask, HRTask
+from .agents import EmailPersonalizationAgents, HRAgents
+from .job_manager import append_event
+from .tasks import PersonalizeEmailTask, HRTask
 from crewai import Crew
 
 
