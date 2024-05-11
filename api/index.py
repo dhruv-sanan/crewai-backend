@@ -1,4 +1,5 @@
 # Standard library imports
+from bs4 import BeautifulSoup
 from datetime import datetime
 import json
 from threading import Thread
@@ -10,14 +11,21 @@ from flask_cors import CORS
 import os
 import requests
 # Local application/library specific imports
-from .crew import EmailPersonalizationCrew, HRCrew, extract_job_description
+from .crew import EmailPersonalizationCrew, HRCrew
 from .job_manager import append_event, jobs, jobs_lock, Event
 # from utils.logging import logger
 app = Flask(__name__)
 CORS(app)
 
 
-
+def extract_job_description(url):
+    response = requests.get(url)
+    html_content = response.text
+    soup = BeautifulSoup(html_content, "html.parser")
+    job_description_section = soup.find("section", {"class": "description"})
+    job_description = job_description_section.get_text()
+    job_description = job_description.strip()
+    return job_description
 
 
 @app.route('/api/extract-jd', methods=['POST'])
