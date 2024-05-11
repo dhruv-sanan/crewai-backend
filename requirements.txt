@@ -1,7 +1,6 @@
 beautifulsoup4
 crewai== 0.1.32
 load-dotenv
-Python== 3.10
 Flask==3.0.3
 Flask-Cors==4.0.1
 langchain-groq==0.1.3
