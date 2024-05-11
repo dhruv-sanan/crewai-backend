@@ -155,8 +155,6 @@ def run_crewHR():
 def get_status(job_id):
     with jobs_lock:
         job = jobs.get(job_id)
-        if job is None:
-            abort(404, description="Job not found")
 
      # Parse the job.result string into a JSON object
     try:
