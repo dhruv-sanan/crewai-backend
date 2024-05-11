@@ -1,5 +1,4 @@
 from crewai import Task
-from crewai import Task
 
 
 from .job_manager import append_event
