@@ -62,16 +62,13 @@ def input_pdf_text(url):
     except Exception as e:
         print(f"Error processing PDF: {e}")
         return "Error: An error occurred while processing the PDF"
-    finally:
-        os.remove("fetched_pdf.pdf")  # Remove temporary file
-
+    
 
 @app.route('/api/extract-text', methods=['POST'])
 def extract_text():
     data = request.get_json()
     if data is None or 'url' not in data:
         return jsonify({'error': 'Missing or invalid data'}), 400
-
     pdf_url = data['url']
     extracted_text = input_pdf_text(pdf_url)
     return jsonify({'text': extracted_text})
