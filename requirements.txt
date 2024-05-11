@@ -7,3 +7,4 @@ PyPDF2
 requests
 utils
 load-dotenv
+python_version = "3.12"
