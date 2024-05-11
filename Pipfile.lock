@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 beautifulsoup4
-crewai== 0.1.32
+crewai
 Flask
 Flask-Cors
 langchain-groq
