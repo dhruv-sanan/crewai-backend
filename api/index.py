@@ -12,8 +12,8 @@ import os
 import requests
 import PyPDF2 as pdf
 # Local application/library specific imports
-from crew import CompanyResearchCrew, EmailPersonalizationCrew, HRCrew
-from .job_manager import append_event, jobs, jobs_lock, Event
+from crew import EmailPersonalizationCrew, HRCrew
+from job_manager import append_event, jobs, jobs_lock, Event
 # from utils.logging import logger
 app = Flask(__name__)
 CORS(app)
@@ -77,29 +77,6 @@ def extract_text():
     return jsonify({'text': extracted_text})
 
 
-def kickoff_crew(job_id, companies: list[str], positions: list[str]):
-    results = None
-    try:
-        company_research_crew = CompanyResearchCrew(job_id)
-        company_research_crew.setup_crew(
-            companies, positions)
-        results = company_research_crew.kickoff()
-        # logger.info(f"Crew for job {job_id} is complete", results)
-
-    except Exception as e:
-        # logger.error(f"Error in kickoff_crew for job {job_id}: {e}")
-        append_event(job_id, f"An error occurred: {e}")
-        with jobs_lock:
-            jobs[job_id].status = 'ERROR'
-            jobs[job_id].result = str(e)
-
-    with jobs_lock:
-        jobs[job_id].status = 'COMPLETE'
-        jobs[job_id].result = results
-        jobs[job_id].events.append(
-            Event(timestamp=datetime.now(), data="Crew complete"))
-
-
 def kickoff_crewpdf(job_id, pdf_content, jd):
     results = None
     try:
@@ -144,21 +121,6 @@ def kickoff_crewHR(job_id, pdf_content, jd):
         jobs[job_id].result = results
         jobs[job_id].events.append(
             Event(timestamp=datetime.now(), data="Crew complete"))
-
-
-@app.route("/api/crew", methods=["POST"])
-def run_crew():
-    data = request.json
-    if not data or 'companies' not in data or 'positions' not in data:
-        abort(400, description="Invalid input data provided.")
-
-    job_id = str(uuid4())
-    companies = data['companies']
-    positions = data['positions']
-    thread = Thread(target=kickoff_crew, args=(
-        job_id, companies, positions))
-    thread.start()
-    return jsonify({"job_id": job_id}), 202
 
 
 @app.route("/api/crewpdf", methods=["POST"])
