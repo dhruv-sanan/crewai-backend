@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "nextjs-crewai-tutorial"
+version = "0.1.0"
+description = "Automate YouTube tasks with CrewAI"
+authors = ["Dhruv Sanan <dhruvsanan01@gmail.com>", "João Moura <joaomdmoura@mgail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+crewai = "^0.22.4"
+pydantic = "^2.6.3"
+load-dotenv = "^0.1.0"
+flask = "^3.0.2"
+flask-cors = "^4.0.0"
+langchain-grog = "0.0.1"
+
+
+[tool.pyright]
+# https://github.com/microsoft/pyright/blob/main/docs/configuration.md
+useLibraryCodeForTypes = true
+exclude = [".cache"]
+
+[tool.ruff]
+# https://beta.ruff.rs/docs/configuration/
+select = ['E', 'W', 'F', 'I', 'B', 'C4', 'ARG', 'SIM']
+ignore = ['W291', 'W292', 'W293']
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
