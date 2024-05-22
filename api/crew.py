@@ -1,6 +1,6 @@
-from .agents import EmailPersonalizationAgents, HRAgents
-from .job_manager import append_event
-from .tasks import PersonalizeEmailTask, HRTask
+from agents import EmailPersonalizationAgents, Score_Agents
+from job_manager import append_event
+from tasks import PersonalizeEmailTask, Score_Task
 from crewai import Crew
 
 
@@ -9,13 +9,14 @@ class EmailPersonalizationCrew:
         self.job_id = job_id
         self.crew = None
 
-    def setup_crew(self, pdf_content, jd):
+    def setup_crew(self, pdf_content, jd, jt):
         agents = EmailPersonalizationAgents()
         tasks = PersonalizeEmailTask(
             job_id=self.job_id)
 
-        personalize_email_agent = agents.personalize_email_agent()
-        ghostwriter_agent = agents.ghostwriter_agent()
+        personalize_email_agent = agents.personalize_email_agent(
+            pdf_content, jd, jt)
+        # ghostwriter_agent = agents.ghostwriter_agent()
         email_template = """
                             Dear [Candidate Name],
 
@@ -26,22 +27,23 @@ class EmailPersonalizationCrew:
                             We look forward to meeting with you again soon!
 
                             Regards,
-                            ALINDOR
+                            [Company Name]
                         """
-        personalize_email = tasks.personalize_email(
-            personalize_email_agent, pdf_content, jd, email_template)
-        ghostwrite_email = tasks.ghostwrite_email(
-            ghostwriter_agent, personalize_email)
+        personalize_email_task = tasks.personalize_email(
+            personalize_email_agent, pdf_content, jt, jd, email_template)
+        # ghostwrite_email_task = tasks.ghostwrite_email(
+        #     ghostwriter_agent, personalize_email_task)
 
         # Setup Crew
         self.crew = Crew(
             agents=[
-                personalize_email_agent, ghostwriter_agent
+                personalize_email_agent
             ],
             tasks=[
-                personalize_email, ghostwrite_email
+                personalize_email_task
             ],
-            max_rpm=29
+            max_rpm=29,
+            verbose=2
         )
 
     def kickoff(self):
@@ -59,21 +61,21 @@ class EmailPersonalizationCrew:
             return str(e)
 
 
-class HRCrew:
+class Score_Crew:
     def __init__(self, job_id: str):
         self.job_id = job_id
         self.crew = None
 
-    def setup_crew(self, pdf_content, jd):
-        agents = HRAgents()
-        tasks = HRTask(
+    def setup_crew(self, pdf_content, jt, jd):
+        agents = Score_Agents()
+        tasks = Score_Task(
             job_id=self.job_id)
 
-        score_HR_agent = agents.scoreHR_agent()
+        scoring_agent = agents.score_agent()
         # explain_HR_agent = agents.explainHR_agent()
         # ghostwrite_explainHR_agent = agents.ghostwrite_explainHR_agent()
-        score_HR = tasks.scoreHR(
-            score_HR_agent, pdf_content, jd)
+        score_task = tasks.score_person_task(
+            scoring_agent, pdf_content, jt, jd)
         # explain_HR = tasks.explainHR(
         #     explain_HR_agent, score_HR)
         # ghostwrite_explainHR = tasks.ghostwrite_explainHR(
@@ -82,10 +84,10 @@ class HRCrew:
         # Setup Crew
         self.crew = Crew(
             agents=[
-                score_HR_agent
+                scoring_agent
             ],
             tasks=[
-                score_HR
+                score_task
             ],
             max_rpm=29
         )

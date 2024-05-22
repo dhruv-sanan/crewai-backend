@@ -1,6 +1,9 @@
 from crewai import Agent
+from langchain_openai import ChatOpenAI
 from langchain_groq import ChatGroq
+from langchain_google_genai import GoogleGenerativeAI
 import os
+
 
 class EmailPersonalizationAgents():
     def __init__(self):
@@ -9,23 +12,24 @@ class EmailPersonalizationAgents():
             model="mixtral-8x7b-32768"
         )
 
-        # self.llm = ChatOpenAI(
-        #     model="gpt-3.5-turbo",
-        #     api_key=os.getenv("OPENAI_API_KEY")
-        # )
-
-    def personalize_email_agent(self):
+    def personalize_email_agent(self, pdf_content, jd, jt) -> Agent:
         return Agent(
             role="Email Personalizer",
             goal=f"""
                 Personalize template emails for candidates that have been selected for the interview stage.
-
-                Given a template email and recipient information (name, email, resume), 
-                personalize the email by incorporating the recipient's details 
+                Resume: {pdf_content}
+                Job Title: {jt}
+                Job Description: {jd}
+                Personalize template emails for candidates that have been selected for the interview stage.
+                Given a template email personalize the email by incorporating the recipient's details 
                 into the email while maintaining the core message and structure of the original email. 
                 This involves updating the introduction, body, and closing of the email to make 
                 it more personal and engaging for each recipient. Make sure to congratulate the 
                 candidate for passing the first round of shortlisting candidates.
+                Use an formal, engaging, and slightly corporate tone, mirroring a professional communication style.
+                It is your job to return this email in a JSON object
+                Important:
+                - The final output should be a JSON object returning relevant subject and content of the email
                 """,
             backstory="""
                 As an Email Personalizer, you are responsible for customizing template emails for individual recipients based on their information.
@@ -33,26 +37,32 @@ class EmailPersonalizationAgents():
             verbose=True,
             llm=self.llm,
             max_iter=2,
+            max_rpm=29,
         )
 
-    def ghostwriter_agent(self):
+    def ghostwriter_agent(self) -> Agent:
         return Agent(
             role="Ghostwriter",
             goal=f"""
                 Revise draft emails to adopt the Ghostwriter's writing style.
-
                 Use an formal, engaging, and slightly corporate tone, mirroring the Ghostwriter's final email communication style.
+                It is your job to return this email in a JSON object.
                 """,
             backstory="""
                 As a Ghostwriter, you are responsible for revising draft emails to match the Ghostwriter's writing style, focusing on clear, direct communication with a formal, approachable and slightly happy tone.
+                Important:
+                - The final output should be a JSON object returning relevant subject and content of the email
                 """,
             verbose=True,
             llm=self.llm,
             max_iter=2,
+            allow_delegation=True,
+            max_rpm=29,
+
         )
 
 
-class HRAgents():
+class Score_Agents():
 
     def __init__(self):
         self.llm = ChatGroq(
@@ -64,7 +74,7 @@ class HRAgents():
         #     api_key=os.getenv("OPENAI_API_KEY")
         # )
 
-    def scoreHR_agent(self) -> Agent:
+    def score_agent(self) -> Agent:
         return Agent(
             role="Human Resource Manager",
             goal=f"""provide a score indicating the suitability of the candidate for the specified role
@@ -80,20 +90,21 @@ class HRAgents():
             llm=self.llm,
             verbose=True,
             max_iter=2,
+            max_rpm=29,
         )
 
-    def explainHR_agent(self) -> Agent:
+    def explain_score_agent(self) -> Agent:
         return Agent(
             role="Human Resource Manager",
-            goal="""provide an explaination indicating the suitability of the candidate for the specified role.""",
-            backstory="""As a Human Resource Manager, you are responsible to explaination indicating the suitability of the candidate for the specified role required
+            goal="""provide an explanation indicating the suitability of the candidate for the specified role.""",
+            backstory="""As a Human Resource Manager, you are responsible to explanation indicating the suitability of the candidate for the specified role required
                 within the company and gathering relevant information.
  
                 Important Info to consider:
                 - Make sure you compare and contrast the skills required in job description and the skills present in resume
                 - Make sure you compare and contrast the experience required in job description and the skills present in resume
                 - After carefull accessment of both the things, then you give an explanation of the score
-                - the explaination should be 2-4 sentences long. Not more than 4 
+                - the explanation should be 2-4 sentences long. Not more than 4 
                 """,
             llm=self.llm,
             verbose=True,
@@ -103,12 +114,12 @@ class HRAgents():
     #     return Agent(
     #         role="Ghostwriter",
     #         goal=f"""
-    #             Revise explainations to adopt the Ghostwriter's writing style.
+    #             Revise explanation to adopt the Ghostwriter's writing style.
 
     #             Use an formal, engaging, and slightly corporate tone, mirroring the Ghostwriter's final email communication style.
     #             """,
     #         backstory="""
-    #             As a Ghostwriter, you are responsible for revising explainations to match the Ghostwriter's writing style,
+    #             As a Ghostwriter, you are responsible for revising explanation to match the Ghostwriter's writing style,
     #             focusing on clear, direct communication with a formal, approachable and slightly honest tone.
     #             """,
     #         verbose=True,
