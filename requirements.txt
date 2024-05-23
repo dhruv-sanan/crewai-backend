@@ -7,8 +7,7 @@ PyPDF2
 requests
 utils
 load-dotenv
-python == 3.12
 pydantic
 lxml
 resend
-langchain-google-genai
+gunicorn
